@@ -1,6 +1,8 @@
 using EncuestasAPIU3_4.Models.Entities;
+using EncuestasAPIU3_4.Models.Validators;
 using EncuestasAPIU3_4.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,7 @@ builder.Services.AddDbContext<EncuestaContext>(x =>
 x.UseMySql(cs, ServerVersion.AutoDetect(cs)));
 
 builder.Services.AddScoped(typeof(Repository<>),typeof(Repository<>));
+builder.Services.AddScoped(typeof(UsuarioValidator));
 
 
 builder.Services.AddControllers();
@@ -22,7 +25,16 @@ builder.Services.AddCors(x =>
 
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Encuestas API",
+        Version = "v1",
+        Description = "API para gestionar encuestas escolares"
+    });
+});
+
 
 var app = builder.Build();
 
@@ -32,6 +44,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 app.UseCors("todos");
 

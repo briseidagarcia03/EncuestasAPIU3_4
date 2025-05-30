@@ -1,10 +1,31 @@
 using EncuestasAPIU3_4.Models.Entities;
 using EncuestasAPIU3_4.Models.Validators;
 using EncuestasAPIU3_4.Repositories;
+using EncuestasAPIU3_4.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
+{
+    jwtOptions.Audience = builder.Configuration["Jwt:Audience"];
+    jwtOptions.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        ValidateLifetime = true
+    };
+});
 
 var cs = builder.Configuration.GetConnectionString("EncuestasCS");
 
@@ -12,6 +33,8 @@ builder.Services.AddDbContext<EncuestaContext>(x =>
 x.UseMySql(cs, ServerVersion.AutoDetect(cs)));
 
 builder.Services.AddScoped(typeof(Repository<>),typeof(Repository<>));
+builder.Services.AddTransient<JwtService>();
+
 builder.Services.AddScoped(typeof(UsuarioValidator));
 
 

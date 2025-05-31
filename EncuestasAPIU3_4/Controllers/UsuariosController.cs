@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EncuestasAPIU3_4.Controllers
 {
-    [AllowAnonymous] //el registro si necesita autoenticación
+
     [Route("api/[controller]")]
     [ApiController]
     public class UsuariosController : ControllerBase
@@ -25,6 +25,7 @@ namespace EncuestasAPIU3_4.Controllers
         public UsuarioValidator Validador { get; }
         public JwtService Service { get; }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Registrar(UsuarioDTO dto)
         {
@@ -46,8 +47,9 @@ namespace EncuestasAPIU3_4.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login(UsuarioDTO dto)
+        public IActionResult Login(LoginDTO dto)
         {
             var token = Service.GenerarToken(dto);
 

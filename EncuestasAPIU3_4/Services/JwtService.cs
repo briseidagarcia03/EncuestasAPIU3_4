@@ -18,7 +18,7 @@ namespace EncuestasAPIU3_4.Services
         public IConfiguration Configuration { get; }
         public Repository<Usuarios> Repository { get; }
 
-        public string? GenerarToken(UsuarioDTO dto)
+        public string? GenerarToken(LoginDTO dto)
         {
             var usuario = Repository.GetAll().FirstOrDefault(x => x.NombreUsuario == dto.Nombre && x.Contrasena == dto.Contrasena);
 
@@ -32,7 +32,7 @@ namespace EncuestasAPIU3_4.Services
                 {
                     new Claim("Id", usuario.Id.ToString()),
                     new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-                    new Claim("Rol", usuario.Rol)
+                    new Claim(ClaimTypes.Role, usuario.Rol)
                 };
 
                 var descriptor = new JwtSecurityToken(
